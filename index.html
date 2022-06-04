@@ -7,16 +7,19 @@
     <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
     <script src="https://code.jquery.com/ui/1.13.1/jquery-ui.js"></script>
     <script src="./calculation.js"></script>
+
+
     <script>
+
   $( function() {
       $("#addTimeline").click((e) => {
           timelineToAdd = timeLineModule.extractTidslinje();
           timeLineModule.addTimeLine(timelineToAdd);
                      $( "#amount" ).val( "" + $( "#slider-range" ).slider( "values", 0 ) +
       " of " + $( "#slider-range" ).slider( "values", 1 ) );
-      $( "#likes" ).val( "Likes:" + timeLineModule.countLikes( $( "#slider-range" ).slider( "values", 0 ), $( "#slider-range" ).slider( "values", 1 ) ) );
+      $( "#likes" ).val( "Likes:" + timeLineModule.countLikes( $( "#slider-range" ).slider( "values", 0 ), $( "#slider-range" ).slider( "values", 1 ),$("#percent").val() ) );
     $("#comments").empty()
-    obj=timeLineModule.filterListByTime($( "#slider-range" ).slider( "values", 0 ) ,$( "#slider-range" ).slider( "values", 1 ) );
+    obj=timeLineModule.filterListByTime($( "#slider-range" ).slider( "values", 0 ) ,$( "#slider-range" ).slider( "values", 1 ),$("#percent").val() );
     let html = '<div style="background-color:rgb(220,220,220); color:black;margin-bottom: 40px;">';
 
     for (let key in obj) {
@@ -37,6 +40,29 @@
           $( "#vidControll" ).get(0).play();
    });
 
+    $("#percent").change((e) => {
+
+   $("#comments").empty()
+    obj=timeLineModule.filterListByTime($( "#slider-range" ).slider( "values", 0 ) ,$( "#slider-range" ).slider( "values", 1 ),$("#percent").val() );
+    let html = '<div style="background-color:rgb(220,220,220); color:black;margin-bottom: 40px;">';
+
+    for (let key in obj) {
+        html += '<p>' +  " <strong>user</strong>: " + obj[key].user + '</p>';
+        html += '<p>' +  "<strong> text</strong>: " + obj[key].text + '</p>';
+        html += '<p>' +  " <strong>like</strong>: " + obj[key].like + '</p>';
+        html += '<p>' +  " <strong>dislike</strong>: " + obj[key].dislike + '</p>';
+         html += '<div style="background-color:white; color:white">f</div>'
+    }
+
+   $(html).appendTo("#comments");
+   $("#comments").css("background-color","white")
+    });
+   $( "#pause" ).click(function(){
+          $( "#vidControll" ).get(0).pause();
+   });
+      $( "#play" ).click(function(){
+          $( "#vidControll" ).get(0).play();
+   });
 
      $( "#slider-range" ).mouseup(function() {
        $( "#vidControll" ).get(0).pause();
@@ -46,14 +72,14 @@
     $( "#slider-range" ).slider({
       range: true,
       min: 0,
-      max: 5,
+      max: $( "#video" ).duration,
       values: [ 0, 5],
       slide: function( event, ui ) {
-        $( "#likes" ).val( "Likes:" + timeLineModule.countLikes(ui.values[ 0 ],ui.values[ 1 ] ) );
+        $( "#likes" ).val( "Likes:" + timeLineModule.countLikes(ui.values[ 0 ],ui.values[ 1 ],$("#percent").val() ,$("#percent").val()  ) );
             $( "#amount" ).val( "" + $( "#slider-range" ).slider( "values", 0 ) +
       " of " + $( "#slider-range" ).slider( "values", 1 ) );
     $("#comments").empty()
-    obj=timeLineModule.filterListByTime(ui.values[ 0 ],ui.values[ 1 ] );
+    obj=timeLineModule.filterListByTime(ui.values[ 0 ],ui.values[ 1 ],$("#percent").val()  );
     let html = '<div style="background-color:rgb(220,220,220); color:black;margin-bottom: 40px;">';
 
     for (let key in obj) {
@@ -85,8 +111,14 @@
         <source id="video" src="./boat.mp4#t=1,4" type="video/mp4">
         Your browser does not support the video tag.
     </video>
+        <div id="slider-range" style="width:320px" ></div>
+        <label for="percent">Percent(%)</label>
+        <input type="number" id="percent" value="100"></input>
+        <button id ="play">play</button>
+        <button id ="pause">pause</button>
         </center>
 
+    <center>
     <p>
         <label for="amount">Current time range:</label>
         <input type="text" id="amount" readonly style="border:0; color:#f6931f; font-weight:bold;" >
@@ -95,11 +127,10 @@
         <label for="likes">Likes for current time interval:</label>
         <input type="text" id="likes" readonly style="border:0; color:#f6931f; font-weight:bold;" >
     </p>
-    <div id="slider-range" ></div>
+
     <label for="comments">Comments:</label>
     <div id="comments"></div>
-    <button id ="play">play</button>
-    <button id ="pause">pause</button><br>
+
     <section id="kommentar">
 
         <header> Comment </header>
@@ -129,6 +160,7 @@
                 </div>
 
     </section>
+    </center>
 </main>
 </body>
 </html>
