@@ -3,9 +3,9 @@ var timeLineModule = (function(){
 
    let timeLines = [];
 
-    function filterPListByTime(start,end){
+    function filterPListByTime(start,end,percent){
             return timeLines.filter((x)=>{
-                     return x.start >= start && x.end <= end;
+                     return x.start >= start && x.end <= end && ((x.start-x.end)/(start-end))*100 >= percent;
             })
      }
 
@@ -13,8 +13,8 @@ var timeLineModule = (function(){
         return timeLines;
     }
 
-    function countPLikes(start,end){
-        let timeLinesFilteredTime = filterPListByTime(start,end);
+    function countPLikes(start,end,percent){
+        let timeLinesFilteredTime = filterPListByTime(start,end,percent);
                          return timeLinesFilteredTime.reduce((nmbLikes,timeline)=>{
                                     if(timeline.like) return nmbLikes + 1;
                                     else              return nmbLikes;
@@ -37,16 +37,16 @@ var timeLineModule = (function(){
    }
 
    return {
-    filterListByTime: function (start,end){
-            return filterPListByTime(start,end)
+    filterListByTime: function (start,end,percent){
+            return filterPListByTime(start,end,percent)
     }
     ,
     getAllTimeLines: function(){
          return getPAllTimeLines()
     }
      ,
-    countLikes: function(start,end){
-                return countPLikes(start,end)
+    countLikes: function(start,end,percent){
+                return countPLikes(start,end,percent)
       },
 
     filterListByTimeAndUser:  function(start,end,user){
