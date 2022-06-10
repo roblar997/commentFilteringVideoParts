@@ -1,4 +1,3 @@
-
 //Fenwick tree for each meta-data (feature) to add to time-line, to add and extract meta-data to time-slots
 //
 // Conseptional idea:
@@ -83,6 +82,35 @@ class FenwFeatureTree {
          return this.extractFeatures(this.rangeQuery(l,r))
     }
 
+    rangeSearch(liste,l,r){
+            let featureList = this.queryFeatures(l,r)
+            let resList = [l,r]
+
+            for (const [key, val] of Object.entries(liste)){
+
+               if(!featureList.some(x => x == val))
+                  return [-1,-1]
+            }
+
+            let midtpoint = Math.floor((l+r)/2)
+
+            if(l != r)
+                resList = this.rangeSearch(liste,l,midtpoint)
+
+
+
+            if (resList.toString() === [-1,-1].toString()){
+                 resList = this.rangeSearch(liste,midtpoint+1,r)
+                 if(resList.toString() === [-1,-1].toString())
+                        return [l,r]
+                 else
+                        return resList
+            }
+            else
+                 return resList
+
+
+    }
 
 }
 var timeLineModule = (function(){
