@@ -29,9 +29,11 @@ class FenwFeatureTree {
      }
 
      update(timeSlot, feature){
+        if(timeSlot == 0) return //must start at 1
         while (timeSlot < this.size){
            this.tree[feature][timeSlot] += 1
            timeSlot += timeSlot & (-timeSlot)
+            console.log(timeSlot)
         }
     }
 
@@ -112,10 +114,13 @@ class FenwFeatureTree {
 
     }
 
+
+
 }
 var timeLineModule = (function(){
 
    let timeLines = [];
+   let fenwFeatureTree;
 
     function filterPListByTime(start,end,percent){
             return timeLines.filter((x)=>{
@@ -127,6 +132,10 @@ var timeLineModule = (function(){
         return timeLines;
     }
 
+    function extractPFeatures(l,r){
+        return this.fenwFeatureTree.queryFeatures(l,r);
+    }
+
     function countPLikes(start,end,percent){
         let timeLinesFilteredTime = filterPListByTime(start,end,percent);
                          return timeLinesFilteredTime.reduce((nmbLikes,timeline)=>{
@@ -135,6 +144,18 @@ var timeLineModule = (function(){
                                    },0.0)
     }
 
+    function   initPFeatureTree(nmbFeatures,size){
+        this.fenwFeatureTree = new FenwFeatureTree(nmbFeatures,size)
+    }
+
+    function updateP(timeslot,feature){
+        //+1 because we need to start at 1 in fenwick
+        this.fenwFeatureTree.update(timeslot+1,feature)
+    }
+    function rangeSearchP(liste,l,r){
+        //+1 because we start at 1 in fenwick
+        return this.fenwFeatureTree.rangeSearch(liste,l+1,r+1)
+    }
     function filterPListByTimeAndUser(start,end,user){
     return timeLines.filter((x)=>{
                      return x.start >= start && x.end <= end && x.user == user;
@@ -173,6 +194,21 @@ var timeLineModule = (function(){
     addTimeLine: function(timeline){
              addPTimeLine(timeline)
     },
+    extractFeatureAndUpdate: function(){
+        let start=$( "#slider-range" ).slider( "values", 0 )
+        let end=$( "#slider-range" ).slider( "values", 1 )
+        let featureNumber=$("#featureNumber").val()
+        for(let i=start+1; i <= end+1; i++){
+            //+1 because we start at 1 in fenwick
+            updateP(i,featureNumber)
+        }
+
+    },
+    extractFeatures: function() {
+        let start=$( "#slider-range" ).slider( "values", 0 )
+        let end=$( "#slider-range" ).slider( "values", 1 )
+        return extractPFeatures(start+1, end+1)
+    },
     extractTidslinje: function(){
 
 
@@ -190,6 +226,19 @@ var timeLineModule = (function(){
                 return tidslinjeData;
 
     },
+    initFeatureTree: function(start,end){
+        initPFeatureTree(start,end)
+    },
+    update: function(timeslot,feature){
+        updateP(timeslot+1,feature)
+    },
+    rangeSearch: function (){
+        let start=$( "#slider-range" ).slider( "values", 0 )
+        let end=$( "#slider-range" ).slider( "values", 1 )
+        let liste = $( "#featuresToFind" ).val().split(",")
+        let res = rangeSearchP(liste,start+1,end+1)
+        return [res[0]-1,res[1]-1]
+    }
 
    }
 })();
