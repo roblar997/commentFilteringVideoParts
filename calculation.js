@@ -226,8 +226,8 @@ var timeLineModule = (function(){
                 return tidslinjeData;
 
     },
-    initFeatureTree: function(start,end){
-        initPFeatureTree(start,end)
+    initFeatureTree: function(nmbFeatures,size){
+        initPFeatureTree(nmbFeatures,size)
     },
     update: function(timeslot,feature){
         updateP(timeslot+1,feature)
