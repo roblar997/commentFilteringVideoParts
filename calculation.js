@@ -36,7 +36,6 @@ class FenwFeatureTree {
             console.log(timeSlot)
         }
     }
-
     query(timeSlot){
 
        let returnArray = []
@@ -121,7 +120,28 @@ var timeLineModule = (function(){
 
    let timeLines = [];
    let fenwFeatureTree;
+   let timestamp
 
+    async function getInitState() {
+        await $.post("/getInitState",(res)=>{
+                this.fenwFeatureTree = new FenwFeatureTree(res.nmbFeatures,res.size)
+                this.timestamp = res.timestamp
+                for (let key in res.updates){
+                    fenwFeatureTree.update(res[key].timeslot,res[key].featureNmb);
+                }
+        }).promise();
+    }
+    async function getChanges() {
+
+
+        await $.post("/getChanges",timestamp, (res)=>{
+            this.timestamp = timestamp;
+            for (let key in res){
+                    fenwFeatureTree.update(res[key].timeslot,res[key].featureNmb);
+            }
+        }).promise();
+
+    }
     function filterPListByTime(start,end,percent){
             return timeLines.filter((x)=>{
                      return x.start >= start && x.end <= end && ((x.start-x.end)/(start-end))*100 >= percent;
