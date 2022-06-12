@@ -43,13 +43,7 @@ class FenwFeatureTree {
         this.update(timeSlot, feature, -1)
     }
 
-    removeAll(timeSlot,feature){
-        if(timeSlot == 0) return //must start at 1
-        while (timeSlot < this.size){
-            this.tree[feature][timeSlot] = 0
-            timeSlot += timeSlot & (-timeSlot)
-        }
-    }
+
     query(timeSlot){
 
        let returnArray = []
