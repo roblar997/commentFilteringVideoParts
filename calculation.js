@@ -28,12 +28,26 @@ class FenwFeatureTree {
          }
      }
 
-     update(timeSlot, feature){
+     update(timeSlot, feature, val){
         if(timeSlot == 0) return //must start at 1
         while (timeSlot < this.size){
-           this.tree[feature][timeSlot] += 1
+           this.tree[feature][timeSlot] += val
            timeSlot += timeSlot & (-timeSlot)
-            console.log(timeSlot)
+        }
+    }
+    addOne(timeSlot,feature){
+        this.update(timeSlot, feature, 1)
+    }
+
+    removeOne(timeSlot,feature){
+        this.update(timeSlot, feature, -1)
+    }
+
+    removeAll(timeSlot,feature){
+        if(timeSlot == 0) return //must start at 1
+        while (timeSlot < this.size){
+            this.tree[feature][timeSlot] = 0
+            timeSlot += timeSlot & (-timeSlot)
         }
     }
     query(timeSlot){
@@ -127,7 +141,7 @@ var timeLineModule = (function(){
                 this.fenwFeatureTree = new FenwFeatureTree(res.nmbFeatures,res.size)
                 this.timestamp = res.timestamp
                 for (let key in res.updates){
-                    fenwFeatureTree.update(res[key].timeslot,res[key].featureNmb);
+                    this.fenwFeatureTree.update(res.updates[key].timeslot,res.updates[key].featureNmb,res.updates[key].val);
                 }
         }).promise();
     }
@@ -137,7 +151,8 @@ var timeLineModule = (function(){
         await $.post("/getChanges",timestamp, (res)=>{
             this.timestamp = timestamp;
             for (let key in res){
-                    fenwFeatureTree.update(res[key].timeslot,res[key].featureNmb);
+                //val can be negative, which means it is removing values
+                    this.fenwFeatureTree.update(res.updates[key].timeslot,res.updates[key].featureNmb,res.updates[key].val);
             }
         }).promise();
 
@@ -170,7 +185,7 @@ var timeLineModule = (function(){
 
     function updateP(timeslot,feature){
         //+1 because we need to start at 1 in fenwick
-        this.fenwFeatureTree.update(timeslot+1,feature)
+        this.fenwFeatureTree.addOne(timeslot+1,feature)
     }
     function rangeSearchP(liste,l,r){
         //+1 because we start at 1 in fenwick
