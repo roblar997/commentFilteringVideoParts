@@ -151,24 +151,28 @@ var timeLineModule = (function(){
 
             this.timestamp = timestamp;
 
-            for (let key in res){
-
-                for (let key in res.timelines){
-
-                    if(res.timelines[key].command=="ADD"){
-                        this.timeLines.push(res.timelines[key].postTimeLine)
-                    }
-                    else if(res.timelines[key].command=="REMOVE"){
-                        let index = this.timeLines.findIndex((x)=>{return x.user == res.timelines[key].preTimeLine.user && x.timestamp == res.timelines[key].preTimeLine.timestamp})
-                        this.timeLines.splice(index,1)
-                    }
-                    else if(res.timelines[key].command=="CHANGE"){
-                        let index = this.timeLines.findIndex((x)=>{return x.user == res.timelines[key].preTimeLine.user && x.timestamp == res.timelines[key].preTimeLine.timestamp})
-                        this.timeLines.splice(index,1,timelines[key].postTimeLine)
-                    }
-
-                }
+            for (let key in res.updates){
+                this.fenwFeatureTree.update(res.updates[key].timeslot,res.updates[key].featureNmb,res.updates[key].val);
             }
+
+            for (let key in res.timelines){
+
+                if(res.timelines[key].command=="ADD"){
+                        this.timeLines.push(res.timelines[key].postTimeLine)
+                }
+
+                else if(res.timelines[key].command=="REMOVE"){
+                      let index = this.timeLines.findIndex((x)=>{return x.user == res.timelines[key].preTimeLine.user && x.timestamp == res.timelines[key].preTimeLine.timestamp})
+                      this.timeLines.splice(index,1)
+                }
+
+                else if(res.timelines[key].command=="CHANGE"){
+                      let index = this.timeLines.findIndex((x)=>{return x.user == res.timelines[key].preTimeLine.user && x.timestamp == res.timelines[key].preTimeLine.timestamp})
+                      this.timeLines.splice(index,1,timelines[key].postTimeLine)
+                }
+
+             }
+
         }).promise();
 
     }
