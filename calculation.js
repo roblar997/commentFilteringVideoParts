@@ -205,7 +205,13 @@ var timeLineModule = (function(){
             else              return nmbLikes;
         },0.0)
     }
-
+    function countPDisLikes(start,end,percent){
+        let timeLinesFilteredTime = filterPListByTime(start,end,percent);
+        return timeLinesFilteredTime.reduce((nmbDisLike,timeline)=>{
+            if(timeline.dislike) return nmbDisLike + 1;
+            else              return nmbDisLike;
+        },0.0)
+    }
     function   initPFeatureTree(nmbFeatures,size){
         this.fenwFeatureTree = new FenwFeatureTree(nmbFeatures,size)
     }
@@ -245,7 +251,9 @@ var timeLineModule = (function(){
         countLikes: function(start,end,percent){
             return countPLikes(start,end,percent)
         },
-
+        countDisLikes: function(start,end,percent){
+            return countPDisLikes(start,end,percent)
+        },
         filterListByTimeAndUser:  function(start,end,user){
             filterListByTimeAndUser(start,end,user)
         },
