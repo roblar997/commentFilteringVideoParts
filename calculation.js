@@ -132,21 +132,44 @@ var timeLineModule = (function(){
 
     async function getInitState() {
         await $.post("/getInitState",(res)=>{
+                this.timestamp = new Date().valueOf();
                 this.fenwFeatureTree = new FenwFeatureTree(res.nmbFeatures,res.size)
                 this.timestamp = res.timestamp
                 for (let key in res.updates){
                     this.fenwFeatureTree.update(res.updates[key].timeslot,res.updates[key].featureNmb,res.updates[key].val);
                 }
-        }).promise();
+                for (let key in res.timelines){
+                       this.timeLines.push(res.timelines[key])
+                }
+
+             }).promise();
     }
     async function getChanges() {
 
 
         await $.post("/getChanges",timestamp, (res)=>{
+
             this.timestamp = timestamp;
+
             for (let key in res){
                 //val can be negative, which means it is removing values
                     this.fenwFeatureTree.update(res.updates[key].timeslot,res.updates[key].featureNmb,res.updates[key].val);
+
+                     for (let key in res.timelines){
+
+                          if(this.timelines[key].command=="ADD"){
+                              this.timeLines.push(res.timelines[key].postTimeLine)
+                          }
+                          else if(this.timelines[key].command=="REMOVE"){
+                                 let index = timeLines.findIndex((x)=>{return x.user == this.timelines[key].preTimeLine.user && x.timestamp == this.timelines[key].preTimeLine.timestamp})
+                                 this.timeLines.splice(index,1)
+                           }
+                           else if(this.timelines[key].command=="CHANGE"){
+                                let index = timeLines.findIndex((x)=>{return x.user == this.timelines[key].preTimeLine.user && x.timestamp == this.timelines[key].preTimeLine.timestamp})
+                                this.timeLines.splice(index,1,timelines[key].postTimeLine)
+                           }
+
+                    }
             }
         }).promise();
 
@@ -244,6 +267,7 @@ var timeLineModule = (function(){
                 let tidslinjeData = {
 
                    user:   $("#commentUser").val().trim(),
+                   timestamp: new Date().valueOf(),
                    start: $( "#slider-range" ).slider( "values", 0 ) ,
                    end: $( "#slider-range" ).slider( "values", 1 ),
                    text:  $("#commentComment").val().trim(),
