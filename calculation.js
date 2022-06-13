@@ -260,7 +260,7 @@ var timeLineModule = (function(){
             let start=$( "#slider-range" ).slider( "values", 0 )
             let end=$( "#slider-range" ).slider( "values", 1 )
             let featureNumber=$("#featureNumber").val()
-            for(let i=start+1; i <= end+1; i++){
+            for(let i=start; i <= end; i++){
                 //+1 because we start at 1 in fenwick
                 updateP(i,featureNumber)
             }
