@@ -16,6 +16,7 @@
         $( function() {
             timeLineModule.initFeatureTree(100,100)
             $( "#likes" ).val( "0");
+            $( "#dislikes" ).val( "0");
             $("#addFeature").click((e) => {
                 timeLineModule.extractFeatureAndUpdate()
             });
@@ -47,11 +48,12 @@
 
 
                 $("#addTimeline").click((e) => {
-                    timelineToAdd = timeLineModule.extractTidslinje();
+                    let timelineToAdd = timeLineModule.extractTidslinje();
                     timeLineModule.addTimeLine(timelineToAdd);
                     $( "#amount" ).val( "" + $( "#slider-range" ).slider( "values", 0 ) +
                         " of " + $( "#slider-range" ).slider( "values", 1 ) );
                     $( "#likes" ).val(timeLineModule.countLikes( $( "#slider-range" ).slider( "values", 0 ), $( "#slider-range" ).slider( "values", 1 ),$("#percent").val() ) );
+                    $( "#dislikes" ).val(timeLineModule.countDisLikes( $( "#slider-range" ).slider( "values", 0 ), $( "#slider-range" ).slider( "values", 1 ),$("#percent").val() ) );
                     $("#comments").empty()
                     obj=timeLineModule.filterListByTime($( "#slider-range" ).slider( "values", 0 ) ,$( "#slider-range" ).slider( "values", 1 ),$("#percent").val() );
                     let html = '<div style="background-color:rgb(220,220,220); color:black;margin-bottom: 40px;">';
@@ -78,6 +80,8 @@
                 $("#percent").change((e) => {
 
                     $("#comments").empty()
+                    $( "#likes" ).val(timeLineModule.countLikes( $( "#slider-range" ).slider( "values", 0 ), $( "#slider-range" ).slider( "values", 1 ),$("#percent").val() ) );
+                    $( "#dislikes" ).val(timeLineModule.countDisLikes( $( "#slider-range" ).slider( "values", 0 ), $( "#slider-range" ).slider( "values", 1 ),$("#percent").val() ) );
                     obj=timeLineModule.filterListByTime($( "#slider-range" ).slider( "values", 0 ) ,$( "#slider-range" ).slider( "values", 1 ),$("#percent").val() );
                     let html = '<div style="background-color:rgb(220,220,220); color:black;margin-bottom: 40px;">';
 
@@ -112,6 +116,7 @@
                     values: [ 0, 5],
                     slide: function( event, ui ) {
                         $( "#likes" ).val(timeLineModule.countLikes(ui.values[ 0 ],ui.values[ 1 ],$("#percent").val() ,$("#percent").val()  ) );
+                        $( "#dislikes" ).val(timeLineModule.countDisLikes( $( "#slider-range" ).slider( "values", 0 ), $( "#slider-range" ).slider( "values", 1 ),$("#percent").val() ) );
                         $( "#amount" ).val( "" + $( "#slider-range" ).slider( "values", 0 ) +
                             " of " + $( "#slider-range" ).slider( "values", 1 ) );
                         $("#comments").empty()
@@ -165,7 +170,11 @@
 
             <input type="text" id="likes" readonly style="border:0; color:black; font-weight:bold;" >
         </p>
+        <p>
+            <label for="dislikes">Dislikes <i class="fa fa-thumbs-down" aria-hidden="true"> </i></label>
 
+            <input type="text" id="dislikes" readonly style="border:0; color:black; font-weight:bold;" >
+        </p>
         <label for="comments">Comments:</label>
         <div id="comments"></div>
 
