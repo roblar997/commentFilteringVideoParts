@@ -144,6 +144,14 @@ var timeLineModule = (function(){
 
         }).promise();
     }
+
+    async function sendTimeLine(timeline) {
+        await $.post("/addTimeLine",timeline,(res)=>{
+            this.timestamp = new Date().valueOf();
+
+
+        }).promise();
+    }
     async function getChanges() {
 
 
