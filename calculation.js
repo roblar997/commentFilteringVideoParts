@@ -16,23 +16,23 @@
 // To extract features, use f.queryFeatures(start,stop) to get a list of features in this time range
 class FenwFeatureTree {
 
-     constructor(nmbFeatures,size){
-         this.nmbFeatures = nmbFeatures
-         this.size = size
-         this.tree = []
-         for(let i = 0; i < size; i++){
+    constructor(nmbFeatures,size){
+        this.nmbFeatures = nmbFeatures
+        this.size = size
+        this.tree = []
+        for(let i = 0; i < size; i++){
             this.tree[i] = []
             for(let j = 0; j < size; j++){
-               this.tree[i][j] = 0
+                this.tree[i][j] = 0
             }
-         }
-     }
+        }
+    }
 
-     update(timeSlot, feature, val){
+    update(timeSlot, feature, val){
         if(timeSlot == 0) return //must start at 1
         while (timeSlot < this.size){
-           this.tree[feature][timeSlot] += val
-           timeSlot += timeSlot & (-timeSlot)
+            this.tree[feature][timeSlot] += val
+            timeSlot += timeSlot & (-timeSlot)
         }
     }
     addOne(timeSlot,feature){
@@ -46,19 +46,19 @@ class FenwFeatureTree {
 
     query(timeSlot){
 
-       let returnArray = []
-       for(let j = 0; j < this.nmbFeatures; j++){
-           returnArray[j] = 0
-       }
+        let returnArray = []
+        for(let j = 0; j < this.nmbFeatures; j++){
+            returnArray[j] = 0
+        }
 
-       while (timeSlot > 0) {
-                   for (const [feature, value] of Object.entries(returnArray)){
-                           returnArray[feature] += this.tree[feature][timeSlot]
-                   }
-                   timeSlot -= timeSlot & (-timeSlot)
-       }
+        while (timeSlot > 0) {
+            for (const [feature, value] of Object.entries(returnArray)){
+                returnArray[feature] += this.tree[feature][timeSlot]
+            }
+            timeSlot -= timeSlot & (-timeSlot)
+        }
 
-       return returnArray
+        return returnArray
 
     }
 
@@ -79,44 +79,44 @@ class FenwFeatureTree {
     extractFeatures(liste){
         let res = []
         for (const [feature, value] of Object.entries(liste)){
-               if(liste[feature] != 0){
-                  res.push(feature)
-               }
+            if(liste[feature] != 0){
+                res.push(feature)
+            }
 
         }
         return res
     }
 
     queryFeatures(l,r){
-         return this.extractFeatures(this.rangeQuery(l,r))
+        return this.extractFeatures(this.rangeQuery(l,r))
     }
 
     rangeSearch(liste,l,r){
-            let featureList = this.queryFeatures(l,r)
-            let resList = [l,r]
+        let featureList = this.queryFeatures(l,r)
+        let resList = [l,r]
 
-            for (const [key, val] of Object.entries(liste)){
+        for (const [key, val] of Object.entries(liste)){
 
-               if(!featureList.some(x => x == val))
-                  return [-1,-1]
-            }
+            if(!featureList.some(x => x == val))
+                return [-1,-1]
+        }
 
-            let midtpoint = Math.floor((l+r)/2)
+        let midtpoint = Math.floor((l+r)/2)
 
-            if(l != r)
-                resList = this.rangeSearch(liste,l,midtpoint)
+        if(l != r)
+            resList = this.rangeSearch(liste,l,midtpoint)
 
 
 
-            if (resList.toString() === [-1,-1].toString()){
-                 resList = this.rangeSearch(liste,midtpoint+1,r)
-                 if(resList.toString() === [-1,-1].toString())
-                        return [l,r]
-                 else
-                        return resList
-            }
+        if (resList.toString() === [-1,-1].toString()){
+            resList = this.rangeSearch(liste,midtpoint+1,r)
+            if(resList.toString() === [-1,-1].toString())
+                return [l,r]
             else
-                 return resList
+                return resList
+        }
+        else
+            return resList
 
 
     }
@@ -126,23 +126,23 @@ class FenwFeatureTree {
 }
 var timeLineModule = (function(){
 
-   let timeLines = [];
-   let fenwFeatureTree;
-   let timestamp
+    let timeLines = [];
+    let fenwFeatureTree;
+    let timestamp
 
     async function getInitState() {
         await $.post("/getInitState",(res)=>{
-                this.timestamp = new Date().valueOf();
-                this.fenwFeatureTree = new FenwFeatureTree(res.nmbFeatures,res.size)
-                this.timestamp = res.timestamp
-                for (let key in res.updates){
-                    this.fenwFeatureTree.update(res.updates[key].timeslot,res.updates[key].featureNmb,res.updates[key].val);
-                }
-                for (let key in res.timelines){
-                       this.timeLines.push(res.timelines[key])
-                }
+            this.timestamp = new Date().valueOf();
+            this.fenwFeatureTree = new FenwFeatureTree(res.nmbFeatures,res.size)
+            this.timestamp = res.timestamp
+            for (let key in res.updates){
+                this.fenwFeatureTree.update(res.updates[key].timeslot,res.updates[key].featureNmb,res.updates[key].val);
+            }
+            for (let key in res.timelines){
+                this.timeLines.push(res.timelines[key])
+            }
 
-             }).promise();
+        }).promise();
     }
     async function getChanges() {
 
@@ -153,30 +153,30 @@ var timeLineModule = (function(){
 
             for (let key in res){
 
-                     for (let key in res.timelines){
+                for (let key in res.timelines){
 
-                          if(res.timelines[key].command=="ADD"){
-                              this.timeLines.push(res.timelines[key].postTimeLine)
-                          }
-                          else if(res.timelines[key].command=="REMOVE"){
-                                 let index = this.timeLines.findIndex((x)=>{return x.user == res.timelines[key].preTimeLine.user && x.timestamp == res.timelines[key].preTimeLine.timestamp})
-                                 this.timeLines.splice(index,1)
-                           }
-                           else if(res.timelines[key].command=="CHANGE"){
-                                let index = this.timeLines.findIndex((x)=>{return x.user == res.timelines[key].preTimeLine.user && x.timestamp == res.timelines[key].preTimeLine.timestamp})
-                                this.timeLines.splice(index,1,timelines[key].postTimeLine)
-                           }
-
+                    if(res.timelines[key].command=="ADD"){
+                        this.timeLines.push(res.timelines[key].postTimeLine)
                     }
+                    else if(res.timelines[key].command=="REMOVE"){
+                        let index = this.timeLines.findIndex((x)=>{return x.user == res.timelines[key].preTimeLine.user && x.timestamp == res.timelines[key].preTimeLine.timestamp})
+                        this.timeLines.splice(index,1)
+                    }
+                    else if(res.timelines[key].command=="CHANGE"){
+                        let index = this.timeLines.findIndex((x)=>{return x.user == res.timelines[key].preTimeLine.user && x.timestamp == res.timelines[key].preTimeLine.timestamp})
+                        this.timeLines.splice(index,1,timelines[key].postTimeLine)
+                    }
+
+                }
             }
         }).promise();
 
     }
     function filterPListByTime(start,end,percent){
-            return timeLines.filter((x)=>{
-                     return x.start >= start && x.end <= end && ((x.start-x.end)/(start-end))*100 >= percent;
-            })
-     }
+        return timeLines.filter((x)=>{
+            return x.start >= start && x.end <= end && ((x.start-x.end)/(start-end))*100 >= percent;
+        })
+    }
 
     function getPAllTimeLines(){
         return timeLines;
@@ -188,10 +188,10 @@ var timeLineModule = (function(){
 
     function countPLikes(start,end,percent){
         let timeLinesFilteredTime = filterPListByTime(start,end,percent);
-                         return timeLinesFilteredTime.reduce((nmbLikes,timeline)=>{
-                                    if(timeline.like) return nmbLikes + 1;
-                                    else              return nmbLikes;
-                                   },0.0)
+        return timeLinesFilteredTime.reduce((nmbLikes,timeline)=>{
+            if(timeline.like) return nmbLikes + 1;
+            else              return nmbLikes;
+        },0.0)
     }
 
     function   initPFeatureTree(nmbFeatures,size){
@@ -207,89 +207,89 @@ var timeLineModule = (function(){
         return this.fenwFeatureTree.rangeSearch(liste,l+1,r+1)
     }
     function filterPListByTimeAndUser(start,end,user){
-    return timeLines.filter((x)=>{
-                     return x.start >= start && x.end <= end && x.user == user;
-            })
-   }
-   function getPTimeLine(commentId){
-          return []
-   }
+        return timeLines.filter((x)=>{
+            return x.start >= start && x.end <= end && x.user == user;
+        })
+    }
+    function getPTimeLine(commentId){
+        return []
+    }
 
-   function addPTimeLine(timeline){
+    function addPTimeLine(timeline){
 
-            timeLines.push(timeline);
+        timeLines.push(timeline);
 
-   }
+    }
 
-   return {
-    filterListByTime: function (start,end,percent){
+    return {
+        filterListByTime: function (start,end,percent){
             return filterPListByTime(start,end,percent)
-    }
-    ,
-    getAllTimeLines: function(){
-         return getPAllTimeLines()
-    }
-     ,
-    countLikes: function(start,end,percent){
-                return countPLikes(start,end,percent)
-      },
+        }
+        ,
+        getAllTimeLines: function(){
+            return getPAllTimeLines()
+        }
+        ,
+        countLikes: function(start,end,percent){
+            return countPLikes(start,end,percent)
+        },
 
-    filterListByTimeAndUser:  function(start,end,user){
-              filterListByTimeAndUser(start,end,user)
-     },
-    getTimeLine: function(commentId){
-             getPTimeLine(commentId)
-     } ,
+        filterListByTimeAndUser:  function(start,end,user){
+            filterListByTimeAndUser(start,end,user)
+        },
+        getTimeLine: function(commentId){
+            getPTimeLine(commentId)
+        } ,
 
-    addTimeLine: function(timeline){
-             addPTimeLine(timeline)
-    },
-    extractFeatureAndUpdate: function(){
-        let start=$( "#slider-range" ).slider( "values", 0 )
-        let end=$( "#slider-range" ).slider( "values", 1 )
-        let featureNumber=$("#featureNumber").val()
-        for(let i=start+1; i <= end+1; i++){
-            //+1 because we start at 1 in fenwick
-            updateP(i,featureNumber)
+        addTimeLine: function(timeline){
+            addPTimeLine(timeline)
+        },
+        extractFeatureAndUpdate: function(){
+            let start=$( "#slider-range" ).slider( "values", 0 )
+            let end=$( "#slider-range" ).slider( "values", 1 )
+            let featureNumber=$("#featureNumber").val()
+            for(let i=start+1; i <= end+1; i++){
+                //+1 because we start at 1 in fenwick
+                updateP(i,featureNumber)
+            }
+
+        },
+        extractFeatures: function() {
+            let start=$( "#slider-range" ).slider( "values", 0 )
+            let end=$( "#slider-range" ).slider( "values", 1 )
+            return extractPFeatures(start+1, end+1)
+        },
+        extractTidslinje: function(){
+
+
+            let tidslinjeData = {
+
+                user:   $("#commentUser").val().trim(),
+                timestamp: new Date().valueOf(),
+                start: $( "#slider-range" ).slider( "values", 0 ) ,
+                end: $( "#slider-range" ).slider( "values", 1 ),
+                text:  $("#commentComment").val().trim(),
+                like: $("#likeYes").is(':checked'),
+                dislike: $("#dislikeYes").is(':checked')
+
+            }
+
+            return tidslinjeData;
+
+        },
+        initFeatureTree: function(nmbFeatures,size){
+            initPFeatureTree(nmbFeatures,size)
+        },
+        update: function(timeslot,feature){
+            updateP(timeslot+1,feature)
+        },
+        rangeSearch: function (){
+            let start=$( "#slider-range" ).slider( "values", 0 )
+            let end=$( "#slider-range" ).slider( "values", 1 )
+            let liste = $( "#featuresToFind" ).val().split(",")
+            let res = rangeSearchP(liste,start+1,end+1)
+            return [res[0]-1,res[1]-1]
         }
 
-    },
-    extractFeatures: function() {
-        let start=$( "#slider-range" ).slider( "values", 0 )
-        let end=$( "#slider-range" ).slider( "values", 1 )
-        return extractPFeatures(start+1, end+1)
-    },
-    extractTidslinje: function(){
-
-
-                let tidslinjeData = {
-
-                   user:   $("#commentUser").val().trim(),
-                   timestamp: new Date().valueOf(),
-                   start: $( "#slider-range" ).slider( "values", 0 ) ,
-                   end: $( "#slider-range" ).slider( "values", 1 ),
-                   text:  $("#commentComment").val().trim(),
-                   like: $("#likeYes").is(':checked'),
-                   dislike: $("#dislikeYes").is(':checked')
-
-              }
-
-                return tidslinjeData;
-
-    },
-    initFeatureTree: function(nmbFeatures,size){
-        initPFeatureTree(nmbFeatures,size)
-    },
-    update: function(timeslot,feature){
-        updateP(timeslot+1,feature)
-    },
-    rangeSearch: function (){
-        let start=$( "#slider-range" ).slider( "values", 0 )
-        let end=$( "#slider-range" ).slider( "values", 1 )
-        let liste = $( "#featuresToFind" ).val().split(",")
-        let res = rangeSearchP(liste,start+1,end+1)
-        return [res[0]-1,res[1]-1]
     }
-
-   }
 })();
