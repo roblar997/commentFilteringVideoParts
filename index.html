@@ -5,14 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.1/themes/base/jquery-ui.css">
     <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
     <script src="https://code.jquery.com/ui/1.13.1/jquery-ui.js"></script>
     <script src="./calculation.js"></script>
-
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css" rel="stylesheet">
 
     <script>
 
         $( function() {
             timeLineModule.initFeatureTree(100,100)
+            $( "#likes" ).val( "0");
             $("#addFeature").click((e) => {
                 timeLineModule.extractFeatureAndUpdate()
             });
@@ -31,12 +34,13 @@
             $("#getFeatures").click((e) => {
                 $("#features").empty()
                 let res = timeLineModule.extractFeatures();
-                let html = '<div style="background-color:rgb(220,220,220); color:black;margin-bottom: 40px;">';
+                let html = '<div style="background-color:white; color:black;margin-bottom: 40px;">';
 
                 for (const [feature, value] of Object.entries(res)){
-                    html += '<p>' +  " <strong>Feature</strong>: " + value + '</p>';
-                    html += '<div style="background-color:white; color:white">f</div>'
+                    html += '<span class="label label-default" style="margin-right:2px">' + value + '</span>';
+
                 }
+                html += '</div>'
                 $(html).appendTo("#features");
                 $("#features").css("background-color","white")
             });
@@ -47,7 +51,7 @@
                     timeLineModule.addTimeLine(timelineToAdd);
                     $( "#amount" ).val( "" + $( "#slider-range" ).slider( "values", 0 ) +
                         " of " + $( "#slider-range" ).slider( "values", 1 ) );
-                    $( "#likes" ).val( "Likes:" + timeLineModule.countLikes( $( "#slider-range" ).slider( "values", 0 ), $( "#slider-range" ).slider( "values", 1 ),$("#percent").val() ) );
+                    $( "#likes" ).val(timeLineModule.countLikes( $( "#slider-range" ).slider( "values", 0 ), $( "#slider-range" ).slider( "values", 1 ),$("#percent").val() ) );
                     $("#comments").empty()
                     obj=timeLineModule.filterListByTime($( "#slider-range" ).slider( "values", 0 ) ,$( "#slider-range" ).slider( "values", 1 ),$("#percent").val() );
                     let html = '<div style="background-color:rgb(220,220,220); color:black;margin-bottom: 40px;">';
@@ -79,6 +83,7 @@
 
                     for (let key in obj) {
                         html += '<p>' +  " <strong>user</strong>: " + obj[key].user + '</p>';
+                        html += '<p>' +  " <strong>user</strong>: " + obj[key].timestamp + '</p>';
                         html += '<p>' +  "<strong> text</strong>: " + obj[key].text + '</p>';
                         html += '<p>' +  " <strong>like</strong>: " + obj[key].like + '</p>';
                         html += '<p>' +  " <strong>dislike</strong>: " + obj[key].dislike + '</p>';
@@ -106,7 +111,7 @@
                     max: $( "#video" ).duration,
                     values: [ 0, 5],
                     slide: function( event, ui ) {
-                        $( "#likes" ).val( "Likes:" + timeLineModule.countLikes(ui.values[ 0 ],ui.values[ 1 ],$("#percent").val() ,$("#percent").val()  ) );
+                        $( "#likes" ).val(timeLineModule.countLikes(ui.values[ 0 ],ui.values[ 1 ],$("#percent").val() ,$("#percent").val()  ) );
                         $( "#amount" ).val( "" + $( "#slider-range" ).slider( "values", 0 ) +
                             " of " + $( "#slider-range" ).slider( "values", 1 ) );
                         $("#comments").empty()
@@ -115,6 +120,7 @@
 
                         for (let key in obj) {
                             html += '<p>' +  " <strong>user</strong>: " + obj[key].user + '</p>';
+                            html += '<p>' +  " <strong>user</strong>: " + obj[key].timestamp + '</p>';
                             html += '<p>' +  "<strong> text</strong>: " + obj[key].text + '</p>';
                             html += '<p>' +  " <strong>like</strong>: " + obj[key].like + '</p>';
                             html += '<p>' +  " <strong>dislike</strong>: " + obj[key].dislike + '</p>';
@@ -152,11 +158,12 @@
     <center>
         <p>
             <label for="amount">Current time range:</label>
-            <input type="text" id="amount" readonly style="border:0; color:#f6931f; font-weight:bold;" >
+            <input type="text" id="amount" readonly style="border:0; color:black; font-weight:bold;" >
         </p>
         <p>
-            <label for="likes">Likes for current time interval:</label>
-            <input type="text" id="likes" readonly style="border:0; color:#f6931f; font-weight:bold;" >
+            <label for="likes">Likes <i class="fa fa-thumbs-up" aria-hidden="true"> </i></label>
+
+            <input type="text" id="likes" readonly style="border:0; color:black; font-weight:bold;" >
         </p>
 
         <label for="comments">Comments:</label>
