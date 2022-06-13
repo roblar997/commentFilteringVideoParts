@@ -152,20 +152,18 @@ var timeLineModule = (function(){
             this.timestamp = timestamp;
 
             for (let key in res){
-                //val can be negative, which means it is removing values
-                    this.fenwFeatureTree.update(res.updates[key].timeslot,res.updates[key].featureNmb,res.updates[key].val);
 
                      for (let key in res.timelines){
 
-                          if(this.timelines[key].command=="ADD"){
+                          if(res.timelines[key].command=="ADD"){
                               this.timeLines.push(res.timelines[key].postTimeLine)
                           }
-                          else if(this.timelines[key].command=="REMOVE"){
-                                 let index = timeLines.findIndex((x)=>{return x.user == this.timelines[key].preTimeLine.user && x.timestamp == this.timelines[key].preTimeLine.timestamp})
+                          else if(res.timelines[key].command=="REMOVE"){
+                                 let index = this.timeLines.findIndex((x)=>{return x.user == res.timelines[key].preTimeLine.user && x.timestamp == res.timelines[key].preTimeLine.timestamp})
                                  this.timeLines.splice(index,1)
                            }
-                           else if(this.timelines[key].command=="CHANGE"){
-                                let index = timeLines.findIndex((x)=>{return x.user == this.timelines[key].preTimeLine.user && x.timestamp == this.timelines[key].preTimeLine.timestamp})
+                           else if(res.timelines[key].command=="CHANGE"){
+                                let index = this.timeLines.findIndex((x)=>{return x.user == res.timelines[key].preTimeLine.user && x.timestamp == res.timelines[key].preTimeLine.timestamp})
                                 this.timeLines.splice(index,1,timelines[key].postTimeLine)
                            }
 
