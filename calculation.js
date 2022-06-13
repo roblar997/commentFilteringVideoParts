@@ -135,8 +135,8 @@ var timeLineModule = (function(){
             this.timestamp = new Date().valueOf();
             this.fenwFeatureTree = new FenwFeatureTree(res.nmbFeatures,res.size)
             this.timestamp = res.timestamp
-            for (let key in res.updates){
-                this.fenwFeatureTree.update(res.updates[key].timeslot,res.updates[key].featureNmb,res.updates[key].val);
+            for (let key in res.features){
+                this.fenwFeatureTree.update(res.features[key].timeslot,res.features[key].featureNmb,res.features[key].val);
             }
             for (let key in res.timelines){
                 this.timeLines.push(res.timelines[key])
@@ -159,8 +159,8 @@ var timeLineModule = (function(){
 
             this.timestamp = timestamp;
 
-            for (let key in res.updates){
-                this.fenwFeatureTree.update(res.updates[key].timeslot,res.updates[key].featureNmb,res.updates[key].val);
+            for (let key in res.features){
+                this.fenwFeatureTree.update(res.features[key].timeslot,res.features[key].featureNmb,res.features[key].val);
             }
 
             for (let key in res.timelines){
